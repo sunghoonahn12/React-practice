@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import TOC from "./components/TOC";
 import ReadContent from "./components/ReadContent";
 import CreateContent from "./components/CreateContent";
+import UpdateContent from "./components/UpdateContent";
 import Subject from "./components/Subject";
 import Control from "./components/Control";
 import './App.css';
@@ -22,16 +23,19 @@ class App extends Component {
       ]
     }
   }
-  render() {
+  getReadContent(){
+    var data = this.state.contents[this.state.selected_content_id - 1];
+    return data;
+  }
+  getContent(){
     var _title, _desc, _article = null;
     if(this.state.mode === 'welcome'){
       _title = this.state.welcome.title;
       _desc = this.state.welcome.desc;
       _article = <ReadContent title={_title} desc={_desc}></ReadContent>
     } else if(this.state.mode === 'read'){
-      _title = this.state.contents[this.state.selected_content_id - 1].title;
-      _desc = this.state.contents[this.state.selected_content_id - 1].desc
-      _article = <ReadContent title={_title} desc={_desc}></ReadContent>
+      var _content = this.getReadContent();
+      _article = <ReadContent title={_content.title} desc={_content.desc}></ReadContent>
     } else if(this.state.mode === 'create'){
       _article = <CreateContent onSubmit={function(_title, _desc){
         // add content to this.state.contents
@@ -43,7 +47,24 @@ class App extends Component {
           contents:newContents
         });
       }.bind(this)}></CreateContent>
+    } else if(this.state.mode === 'update'){
+      _content = this.getReadContent();
+      _article = <UpdateContent data={_content} onSubmit={function(_id, _title, _desc){
+        // var _contents = this.state.contents.concat({id:this.max_content_id, title:_title, desc:_desc});
+        var newContents = Array.from(this.state.contents);
+        newContents[_id-1].title = _title;
+        newContents[_id-1].desc = _desc;
+        this.setState({
+          contents:newContents,
+          mode: 'read',
+          selected_content_id: _id
+        });
+      }.bind(this)}></UpdateContent>
     }
+    return _article;
+  }
+
+  render() {
     return (
       <div className="App">
         <Subject 
@@ -69,7 +90,7 @@ class App extends Component {
             mode:_mode
           })
         }.bind(this)}></Control>
-        {_article}
+        {this.getContent()}
       </div>
     );
   }
