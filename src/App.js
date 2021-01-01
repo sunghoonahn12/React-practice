@@ -60,7 +60,7 @@ class App extends Component {
           selected_content_id: _id
         });
       }.bind(this)}></UpdateContent>
-    }
+    } 
     return _article;
   }
 
@@ -86,9 +86,21 @@ class App extends Component {
           data={this.state.contents}>
         </TOC>
         <Control onChangeMode={function(_mode){
-          this.setState({
-            mode:_mode
-          })
+          if(_mode === 'delete'){
+            if(window.confirm('Really?')){
+              var newContents = Array.from(this.state.contents);
+              newContents.splice(this.state.selected_content_id-1, 1);
+              this.setState({
+                contents:newContents,
+                mode:'welcome'
+              });
+              alert('deleted')
+            }
+          } else {
+            this.setState({
+              mode:_mode
+            });
+          }
         }.bind(this)}></Control>
         {this.getContent()}
       </div>
